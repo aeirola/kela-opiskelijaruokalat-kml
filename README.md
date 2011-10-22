@@ -14,5 +14,5 @@ Käyttö
 
 Rikki
 -----
-* Itse ravintolatiedon tallennus koska KELAn hakuohjelma meni kriittisellä hetkellä rikki
+* Vain harvan ravintolan tiedot tallentuvat sillä ravintolan sivu on tyhjä ellei edellinen haettu alue ole juuri ravintolan alue
 * Kaikki virheenkäsittely
