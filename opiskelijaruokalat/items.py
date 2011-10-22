@@ -8,4 +8,10 @@ from scrapy.item import Item, Field
 class OpiskelijaruokalaItem(Item):
     # define the fields for your item here like:
     name = Field()
-    address = Field()
+    address_street = Field()
+    address_postalcode = Field()
+    address_city = Field()
+    restaurant_url = Field()
+    owner = Field()
+    owner_url = Field()
+    kela_url = Field()

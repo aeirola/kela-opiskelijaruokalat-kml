@@ -7,12 +7,17 @@
 #
 
 BOT_NAME = 'opiskelijaruokalat'
-BOT_VERSION = '1.0'
+BOT_VERSION = '0.2'
 
 SPIDER_MODULES = ['opiskelijaruokalat.spiders']
 NEWSPIDER_MODULE = 'opiskelijaruokalat.spiders'
-DEFAULT_ITEM_CLASS = 'opiskelijaruokalat.items.OpiskelijaruokalatItem'
+DEFAULT_ITEM_CLASS = 'opiskelijaruokalat.items.OpiskelijaruokalaItem'
 USER_AGENT = '%s/%s' % (BOT_NAME, BOT_VERSION)
+
+# Go easy on them
+CONCURRENT_REQUESTS = 1
+CONCURRENT_ITEMS = 1
+DOWNLOAD_DELAY = 0
 
 # Feed settings
 FEED_URI = 'opiskelijaruokalat.kml'

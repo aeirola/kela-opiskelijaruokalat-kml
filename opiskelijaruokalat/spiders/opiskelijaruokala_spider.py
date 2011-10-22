@@ -1,13 +1,16 @@
 from scrapy.spider import BaseSpider
 from scrapy.http import Request
 from scrapy.selector import HtmlXPathSelector
+from scrapy.contrib.loader import XPathItemLoader
 from scrapy import log
+
+from urlparse import urlparse
 
 from opiskelijaruokalat.items import OpiskelijaruokalaItem
 
 AREA_URL_PREFIX = 'http://www.kela.fi/in/internet/suomi.nsf/alias/'
 KARTTALINKKI_URL_PREFIX = 'http://asiointi.kela.fi/opruoka_app/OpruokaApplication?karttalinkki='
-RAVINTOLA_URL_PREFIX = 'http://asiointi.kela.fi/opruoka_app/OpruokaApplication/Show?ravinro='
+RAVINTOLA_URL_PREFIX = 'http://asiointi.kela.fi/opruoka_app/'
 
 class OpiskelijaruokalaSpider(BaseSpider):
     name = "opiskelijaruokala"
@@ -21,12 +24,18 @@ class OpiskelijaruokalaSpider(BaseSpider):
         maakuntas = hxs.select("//map[@id='idx_map']/area")
         seen_codes = set()
         
-        if True:
+        if False:
             # For testing
             ruokala = OpiskelijaruokalaItem()
             ruokala['name'] = 'Testiruokala'
             ruokala['address'] = 'Aleksis Kiven katu 5, Helsinki'
             yield ruokala
+            return
+        
+        if False:
+            # For testing 
+            yield Request('http://asiointi.kela.fi/opruoka_app/OpruokaApplication?karttalinkki=suo08000109', self.parseKunta)
+            #yield Request('http://asiointi.kela.fi/opruoka_app/OpruokaApplication/Show?ravinro=20083082', self.parseOpiskelijaruokala)
             return
         
         for maakunta in maakuntas:
@@ -55,13 +64,52 @@ class OpiskelijaruokalaSpider(BaseSpider):
     def parseKunta(self, response):
         """docstring for parseKunta"""
         hxs = HtmlXPathSelector(response)
-        restaurants = hxs.select("//div[@id='content']/div/table/tbody/tr/td/a")
+        
+        # Check if KELA is okay
+        if not hxs.select("//div[@id='content']/div/table"):
+            self.log(hxs.select("//div[@id='content']/div/p/text()")[0].extract(), level=log.ERROR)
+            return
+            
+        restaurants = hxs.select("//div[@id='content']/div/table/tr/td/a")
         for restaurant in restaurants:
-            self.log("Found restaurant %s" % restaurant.select('text()'), level=log.INFO)
-            yield Request(RAVINTOLA_URL_PREFIX + code, self.parseOpiskelijaruokala)
+            self.log("Found restaurant %s" % restaurant.select('text()').extract()[0], level=log.INFO)
+            yield Request(RAVINTOLA_URL_PREFIX + restaurant.select('@href').extract()[0], self.parseOpiskelijaruokala)
     
-    def parseOpiskelijaruokala(self, repsonse):
+    def parseOpiskelijaruokala(self, response):
         """docstring for parseOpiskelijaruokala"""
-        self.log("What to do?", level=log.INFO)
+        hxs = HtmlXPathSelector(response)
+        
+        # Check if KELA is okay
+        if not hxs.select("//div[@id='content']/div/table"):
+            self.log(hxs.select("//div[@id='content']/div/p/text()")[0].extract(), level=log.ERROR)
+            return
+        
+        # Check if data is missing
+        nameSelectors = hxs.select("//div[@id='content']/div/table/tr/td/b/text()")
+        if not nameSelectors:
+            self.log("No restaurant data found", level=log.WARNING)
+            return
+        
+        self.log("Parsing restaurant %s" % nameSelectors[0].extract(), level=log.INFO)
+        
+        item = OpiskelijaruokalaItem()
+        item['name'] = nameSelectors[0].extract().strip()
+        item['address_street'] = hxs.select("//div[@id='content']/div/table/tr/td/text()")[6].extract().strip()
+        item['address_postalcode'] = hxs.select("//div[@id='content']/div/table/tr/td/text()")[9].extract().strip()
+        item['address_city'] = hxs.select("//div[@id='content']/div/table/tr/td/text()")[12].extract().strip()
+        item['owner'] = hxs.select("//div[@id='content']/div/table/tr/td/text()")[19].extract().strip()
+        
+        urlSelectors = hxs.select("//div[@id='content']/div/table/tr/td/a/@href")
+        if len(urlSelectors) >= 1:
+            item['restaurant_url'] = hxs.select("//div[@id='content']/div/table/tr/td/a/@href")[0].extract().strip()
+        else:
+            item['restaurant_url'] = ""
+        
+        if len(urlSelectors) >= 2:
+            item['owner_url'] = hxs.select("//div[@id='content']/div/table/tr/td/a/@href")[1].extract().strip()
+        else:
+            item['owner_url'] = ""
+        
+        return item
     
 

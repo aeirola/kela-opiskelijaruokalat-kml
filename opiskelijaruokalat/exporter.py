@@ -27,19 +27,24 @@ class KmlItemExporter(BaseItemExporter):
         # Name
         self._export_xml_field('name', item['name'])
         
+        # Description
+        description = item['owner'] + ' ' + item['restaurant_url']
+        self._export_xml_field('description', description)
+        
         # Address
-        self._export_xml_field('address', item['address'])
+        address = item['address_street'] + ' ' + item['address_postalcode'] + ' ' + item['address_city']
+        self._export_xml_field('address', address)
         
         # Point
         self.xg.startElement('Point', {})
-        place, (lat, lng) = self.gc.geocode(item['address'])
+        place, (lat, lng) = self.gc.geocode(self._to_str_if_unicode(address))
         self._export_xml_field('coordinates', "%s,%s" % (lng, lat))
         self.xg.endElement('Point')
         self.xg.endElement('Placemark')
     
     def _export_xml_field(self, name, serialized_value):
         self.xg.startElement(name, {})
-        self.xg.characters(serialized_value)
+        self.xg.characters(self._to_str_if_unicode(serialized_value))
         self.xg.endElement(name)
     
     def finish_exporting(self):
