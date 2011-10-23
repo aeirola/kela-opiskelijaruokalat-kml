@@ -8,10 +8,10 @@ class KmlItemExporter(BaseItemExporter):
     KML_NAME = """KELA Opiskelijaruokalat"""
     KML_DESCRIPTION = """Lista KELAn opiskelijaruokaloista."""
     
-    def __init__(self, file, **kwargs):
+    def __init__(self, out_file, **kwargs):
         self._configure(kwargs)
-        self.xg = XMLGenerator(file, encoding=self.encoding)
-        self.gc = geocoders.Google()
+        self.xg = XMLGenerator(out_file, encoding=self.encoding)
+        self.gc = geocoders.Google(domain='maps.google.fi', format_string="%s, Suomi")
     
     def start_exporting(self):
         self.xg.startDocument()
@@ -36,10 +36,21 @@ class KmlItemExporter(BaseItemExporter):
         self._export_xml_field('address', address)
         
         # Point
-        self.xg.startElement('Point', {})
-        place, (lat, lng) = self.gc.geocode(self._to_str_if_unicode(address))
-        self._export_xml_field('coordinates', "%s,%s" % (lng, lat))
-        self.xg.endElement('Point')
+        # The city field doesn't always hold a city but may be some university campus name that google doesn't
+        # recognize, luckily the postal code with country name should be enough
+        geocode_address = item['address_street'] + ' ' + item['address_postalcode']
+        try:
+            geocode_results = self.gc.geocode(self._to_str_if_unicode(geocode_address), exactly_one=False)
+            if geocode_results:
+                _, (lat, lng) = geocode_results[0]
+                # Check that we are in finland
+                if 59<lat and lat<71 and 19<lng and lng<33:
+                    self.xg.startElement('Point', {})
+                    self._export_xml_field('coordinates', "%s,%s" % (lng, lat))
+                    self.xg.endElement('Point')
+        except:
+            pass
+        
         self.xg.endElement('Placemark')
     
     def _export_xml_field(self, name, serialized_value):

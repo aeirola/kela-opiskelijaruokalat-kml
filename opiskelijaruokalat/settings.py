@@ -17,7 +17,8 @@ USER_AGENT = '%s/%s' % (BOT_NAME, BOT_VERSION)
 # Go easy on them
 CONCURRENT_REQUESTS = 1
 CONCURRENT_ITEMS = 1
-DOWNLOAD_DELAY = 0
+DOWNLOAD_DELAY = 2
+COOKIES_ENABLED = False
 
 # Feed settings
 FEED_URI = 'opiskelijaruokalat.kml'
