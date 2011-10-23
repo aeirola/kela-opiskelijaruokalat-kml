@@ -7,7 +7,7 @@
 #
 
 BOT_NAME = 'opiskelijaruokalat'
-BOT_VERSION = '0.2'
+BOT_VERSION = '1.0'
 
 SPIDER_MODULES = ['opiskelijaruokalat.spiders']
 NEWSPIDER_MODULE = 'opiskelijaruokalat.spiders'
