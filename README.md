@@ -14,5 +14,5 @@ Käyttö
 
 Rikki
 -----
-* Vain harvan ravintolan tiedot tallentuvat sillä ravintolan sivu on tyhjä ellei edellinen haettu alue ole juuri ravintolan alue
-* Kaikki virheenkäsittely
+* Tietyt osoitteet annettu hankalassa muodossa jota Google ei osaa geokoodata, joten eivät saa koordinaatteja. Pitäisi esim poistaa sulut geokoodauspyynnöstä ja muut moiset.
+* Tarkempi virheenkäsittely
