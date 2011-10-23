@@ -15,4 +15,5 @@ Käyttö
 Rikki
 -----
 * Tietyt osoitteet annettu hankalassa muodossa jota Google ei osaa geokoodata, joten eivät saa koordinaatteja. Pitäisi esim poistaa sulut geokoodauspyynnöstä ja muut moiset.
+* Ruokalan ylläpitäjän tiedot väärin jos verkkoosoitetta ei annettu.
 * Tarkempi virheenkäsittely
