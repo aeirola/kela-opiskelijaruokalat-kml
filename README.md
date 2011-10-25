@@ -14,6 +14,5 @@ Käyttö
 
 Rikki
 -----
-* Tietyt osoitteet annettu hankalassa muodossa jota Google ei osaa geokoodata, joten eivät saa koordinaatteja. Pitäisi esim poistaa sulut geokoodauspyynnöstä ja muut moiset.
-* Ruokalan ylläpitäjän tiedot väärin jos verkkoosoitetta ei annettu.
+* KELA antaa tietyt osoitteet annettu hankalassa muodossa joita Google ei osaa geokoodata kunnolla. Joko nämä saavat väärät koordinaatit tai ei koordinaatteja ollenkaan, jollon näkyvät väärin kartalla.
 * Tarkempi virheenkäsittely

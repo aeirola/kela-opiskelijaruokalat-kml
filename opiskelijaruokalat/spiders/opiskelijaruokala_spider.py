@@ -95,14 +95,19 @@ class OpiskelijaruokalaSpider(BaseSpider):
         item['address_street'] = hxs.select("//div[@id='content']/div/table/tr/td/text()")[6].extract().strip()
         item['address_postalcode'] = hxs.select("//div[@id='content']/div/table/tr/td/text()")[9].extract().strip()
         item['address_city'] = hxs.select("//div[@id='content']/div/table/tr/td/text()")[12].extract().strip()
-        item['owner'] = hxs.select("//div[@id='content']/div/table/tr/td/text()")[19].extract().strip()
-        
+
         # Not all restaurants have url fields set
         url_selectors = hxs.select("//div[@id='content']/div/table/tr/td/a/@href")
         if len(url_selectors) >= 1:
             item['restaurant_url'] = url_selectors[0].extract().strip()
         else:
             item['restaurant_url'] = ""
+            
+        # Owner name shifted if no restaurant url
+        if len(url_selectors) >= 1:
+            item['owner'] = hxs.select("//div[@id='content']/div/table/tr/td/text()")[19].extract().strip()
+        else:
+            item['owner'] = hxs.select("//div[@id='content']/div/table/tr/td/text()")[18].extract().strip()
         
         if len(url_selectors) >= 2:
             item['owner_url'] = url_selectors[1].extract().strip()

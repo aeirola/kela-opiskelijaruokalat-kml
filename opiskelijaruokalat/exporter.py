@@ -5,8 +5,17 @@ from geopy import geocoders
 class KmlItemExporter(BaseItemExporter):
     """docstring for KmlItemExporter"""
     
-    KML_NAME = """KELA Opiskelijaruokalat"""
-    KML_DESCRIPTION = """Lista KELAn opiskelijaruokaloista."""
+    KML_NAME = """\
+KELA Opiskelijaruokalat"""
+    KML_DESCRIPTION = """\
+Lista KELAn opiskelijaruokaloista.
+Haettu palvelusta http://www.kela.fi/in/internet/suomi.nsf/alias/suo00000000?Open&pal=http://asiointi.kela.fi/opruoka_app/OpruokaApplication
+"""
+    KML_RESTAURANT_DESCRIPTION = """\
+Nimi: %s
+Osoite: %s
+WWW: %s
+"""
     
     def __init__(self, out_file, **kwargs):
         self._configure(kwargs)
@@ -27,18 +36,19 @@ class KmlItemExporter(BaseItemExporter):
         # Name
         self._export_xml_field('name', item['name'])
         
+        address = item['address_street'] + ', ' + item['address_postalcode'] + ' ' + item['address_city']
+        
         # Description
-        description = item['owner'] + ' ' + item['restaurant_url']
+        description = self.KML_RESTAURANT_DESCRIPTION % (item['owner'], address, item['restaurant_url'])
         self._export_xml_field('description', description)
         
         # Address
-        address = item['address_street'] + ' ' + item['address_postalcode'] + ' ' + item['address_city']
         self._export_xml_field('address', address)
         
         # Point
         # The city field doesn't always hold a city but may be some university campus name that google doesn't
         # recognize, luckily the postal code with country name should be enough
-        geocode_address = item['address_street'] + ' ' + item['address_postalcode']
+        geocode_address = item['address_street'].split("(")[0] + ', ' + item['address_postalcode']
         try:
             geocode_results = self.gc.geocode(self._to_str_if_unicode(geocode_address), exactly_one=False)
             if geocode_results:
